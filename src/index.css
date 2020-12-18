@@ -1,13 +1,130 @@
 body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+    background-color: #FFF0EC;
+    font-family: 'Cormorant', serif;
+    font-size: 1.2em;
+    /*font-family: 'Montserrat', sans-serif;*/
+}
+#headline {
+    text-align: center;
+}
+#main {
+    padding: .5em 1em 4em 1em;
+}
+.blackOutline {
+    border: 1px solid black;
+}
+.rounded {
+    border-radius: 25px;
+}
+.component {
+    margin: .5em;
+    padding: .75em;
+}
+.component h3 {
+    font-weight: 700;
+    font-size: 1.5em;
+}
+.preview {
+    background-color: white;
+    padding: 1em;
+    margin: .5em;
+}
+.filter { 
+    background-color: #FFF6A5;
+}
+.dayPartCheckboxes {
+    font-size: 2em;
+    text-align: center;
+}
+.costSlider {
+    width: 80%;
+    text-align: center;
+    margin: 2em auto 1em auto;
+}
+.ideaList {
+}
+.ideaHeader {
+    font-size: 1.75em;
+}
+.ideaBody {
+}
+.ideaCard {
+    border: 1px black solid;
+    background-color: white;
+    margin: .75em;
+    padding: 1.5em;
+}
+.favoriteCheckbox {
+    float: right;
+}
+.faqs {
+    background-color: #DDFFF9;
+}
+.faqs .question {
+    
 }
 
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+.cart {
+    background-color: #F6CAE7;
+}
+.cart ul {
+    list-style: none;
+    padding: 0em 1em;
+}
+.cart ul li {
+    padding: 1em 1em 1em 0em;
+}
+.cartItem {
+}
+.cartIdea {
+    float: left;
+}
+.cartRemove {
+    float: right;
+    font-family: inherit;
+    font-size: 100%;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background-color: transparent;
+    color: black;
+}
+.cartRemove:hover {
+    color: crimson;
+}
+.eventCreator {
+    background-color: #E7DCFF;
+}
+.emailCreator {
+    background-color: #C0D9FF;
+}
+.componentActionButtons {
+    text-align: center;
+}
+.componentActionButtons button {
+    font-size: 1.3em;
+    font-family: inherit;
+    border: 0;
+    border-radius: 25px;
+    padding: .5em 1em;
+    margin: 0 .25em;
+    background-color: rgba(255,255,255,0.2);
+    color: black;
+}
+.componentActionButtons button:hover {
+    background-color: rgba(255,255,255,0.80);
+    color: black;
+}
+.stickToBottom {
+    width: 100%;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+
+}
+.MuiBottomNavigation-root{
+    background-color: black !important;
+}
+.MuiBottomNavigationAction-root {
+    color: white !important;
 }
