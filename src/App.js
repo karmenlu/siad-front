@@ -16,6 +16,7 @@ import Checkbox from '@material-ui/core/Checkbox';
 import {withStyles} from "@material-ui/core";
 import FormControl from "@material-ui/core/FormControl";
 import FormLabel from "@material-ui/core/FormLabel";
+const API_URL = process.env.REACT_APP_SIAD_API_URL;
 const BlackCheckbox = withStyles({
     root: {
         color: "black",
@@ -100,13 +101,85 @@ class App extends React.Component {
             evening: false,
             overnight: false,
             selectedIdeas: [],
+            ideas: null,
             cartItems: [],
             yourName: "Karmen Lu",
             yourEmail: "kl@example.com",
             recipientName: "Eve Apple",
             recipientEmail: "eve@example.com",
-            costSlideValue: null,
+            costSlideValue: [1,4]
         }
+    }
+    
+    async fetchAllIdeas() {
+        console.log('Fetching all ideas.')
+        try {
+            const response = await fetch(
+                 API_URL + '/ideas',
+                {method: 'get', 
+                headers: {
+                    'Content-Type': 'application/json',
+                    'ApiKey': process.env.REACT_APP_SIAD_API_KEY
+                }})
+            const ideas = await response.json()
+            return ideas;
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
+    async fetchDayParts() {
+        console.log('Fetching all dayParts.')
+        try {
+            const response = await fetch(
+                API_URL + '/dayparts',
+                {method: 'get',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'ApiKey': process.env.REACT_APP_SIAD_API_KEY
+                    }})
+            const dayparts = await response.json()
+            return dayparts;
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
+    async fetchIdeaToParts() {
+        console.log('Fetching all ideatoparts.')
+        try {
+            const response = await fetch(
+                API_URL + '/ideatoparts',
+                {method: 'get',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'ApiKey': process.env.REACT_APP_SIAD_API_KEY
+                    }})
+            const ideatoparts = await response.json()
+            return ideatoparts;
+        } catch (error) {
+            console.log(error)
+        }
+    }
+    
+    applyFilters(e) {
+        
+    }
+    
+    resetFilters(e) {
+        e.preventDefault()
+        this.setState({
+            morning: false,
+            afternoon: false,
+            evening: false, 
+            overnight: false,
+            costSlideValue: [1,4]
+        })
+        this.fetchAllIdeas().then(r => this.setState({ideas: r}))
+    }
+
+    initialize() {
+        this.fetchAllIdeas().then(r => this.setState({ideas: r}))
     }
     
     renderFilter() {
@@ -118,8 +191,8 @@ class App extends React.Component {
                     {this.renderCostSlider()}
                 </div>
                 <div className="componentActionButtons">
-                    <button>reset all filters</button>
-                    <button>apply filters</button>
+                    <button onClick={e => this.resetFilters(e)}>reset all filters</button>
+                    <button onClick={e => this.applyFilters(e)}>apply filters</button>
                 </div>
             </div>
         )
@@ -131,8 +204,9 @@ class App extends React.Component {
                 <Typography id="discrete-slider" gutterBottom>
                     Cost
                 </Typography>
-                <CostSlider
-                    defaultValue={[2,4]}
+                <CostSlider 
+                    onChange={(e, val) => this.setState({costSlideValue: val} )}
+                    value={this.state.costSlideValue}
                     marks={marks}
                     getAriaValueText={(value) => `${value} dollar signs`}
                     aria-labelledby="discrete-slider"
@@ -144,6 +218,7 @@ class App extends React.Component {
             </div>
         )
     }
+    
     handleDayPartChange = (event) => {
         this.setState({[event.target.name]: event.target.checked})
     };
@@ -181,7 +256,7 @@ class App extends React.Component {
         return (
             <div className="ideaList">
                 <FormGroup>
-                    {FAKE_IDEAS.map((data) => {
+                    {this.state.ideas.map((data) => {
                         return (
                             <div className="ideaCard">
                                 <FormControlLabel className="favoriteCheckbox" control={<RedHeartCheckbox/>}/>
@@ -189,9 +264,9 @@ class App extends React.Component {
                                     {data.name}
                                 </div>
                                 <div className="ideaBody">
-                                    optimal for: {data.dayPartIds.map((pid) => DAY_PARTS.find(item => item.pid === pid).name + " ")}<br/>
+                                    {/*optimal for: {data.dayPartIds.map((pid) => DAY_PARTS.find(item => item.pid === pid).name + " ")}<br/>*/}
                                     cost: {data.cost > 0 ? "$".repeat(data.cost) : ""}<br/>
-                                    ldr alternative: {data.ldr_alternative}
+                                    ldr alternative: {data.ldr_alt}
                                 </div>
                             </div>
                     );})}
@@ -298,30 +373,39 @@ class App extends React.Component {
     }
 
     render() {
-        console.log(this.state);
-        return (
-            <React.Fragment>
-                <div id="header">
-                    <h1 id="headline">So It's A Date</h1>
-                    <div id="headerTools">
+        console.log("rendering")
+        console.log(this.state)
+        
+        if( this.state.ideas == null) {
+            this.initialize()
+            return (
+                <div>Loading ...</div>
+            )
+        } else {
+            return (
+                <React.Fragment>
+                    <div id="header">
+                        <h1 id="headline">So It's A Date</h1>
+                        <div id="headerTools">
+                        </div>
                     </div>
-                </div>
-                <div id="main">
-                    {this.renderFilter()}
-                    {this.renderFAQs()}
-                    {this.renderIdeas()}
-                    {this.renderCart()}
-                    {this.renderEmailCreator()}
-                    {this.renderEventCreator()}
-                </div>
-                <BottomNavigation
-                    className="stickToBottom"
-                    showLabels>
-                    <BottomNavigationAction label="Date Cart" value="dateCart" icon={<CartIcon/>}/>
-                    <BottomNavigationAction label="FAQs" value="faqs" icon={<HelpIcon/>}/>
-                </BottomNavigation>
-            </React.Fragment>
-        );
+                    <div id="main">
+                        {this.renderFilter()}
+                        {this.renderIdeas()}
+                        {this.renderCart()}
+                        {this.renderEmailCreator()}
+                        {this.renderEventCreator()}
+                        {this.renderFAQs()}
+                    </div>
+                    <BottomNavigation
+                        className="stickToBottom"
+                        showLabels>
+                        <BottomNavigationAction label="Date Cart" value="dateCart" icon={<CartIcon/>}/>
+                        {/*<BottomNavigationAction label="FAQs" value="faqs" icon={<HelpIcon/>}/>*/}
+                    </BottomNavigation>
+                </React.Fragment>
+            );
+        }
     }
 }
 
