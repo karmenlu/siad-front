@@ -10,6 +10,7 @@ import FavoriteBorderIcon from '@material-ui/icons/FavoriteBorder';
 import HelpIcon from '@material-ui/icons/Help';
 import MailIcon from '@material-ui/icons/Mail';
 import EventIcon from '@material-ui/icons/Event';
+import RemoveShoppingCartIcon from '@material-ui/icons/RemoveShoppingCart';
 import FormGroup from '@material-ui/core/FormGroup';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Checkbox from '@material-ui/core/Checkbox';
@@ -91,7 +92,6 @@ class App extends React.Component {
             overnight: false,
             selectedIdeas: [],
             ideas: [],
-            cartItems: [],
             yourName: "Karmen Lu",
             yourEmail: "kl@example.com",
             recipientName: "Eve Apple",
@@ -131,15 +131,13 @@ class App extends React.Component {
     }
 
     processIdea(idea) {
-        console.log("Processing an idea")
-        return ({...idea, selected: false, dayparts:
+        return ({...idea, dayparts:
                 [idea.morning ? 'Morning' : '', idea.afternoon ? 'Afternoon' : '', idea.evening ? 'Evening' : '', idea.overnight ? 'Overnight' : '']
                     .filter(daypartName => daypartName)
         })
     }
     
     applyFilters(e) {
-        console.log('Applying filters')
         const {costSlideValue, morning, afternoon, evening, overnight} = this.state
         const filterParameters = [costSlideValue[0], costSlideValue[1], morning, afternoon, evening, overnight].join('/')
         fetch(API_URL + '/costdayparts/' + filterParameters,
@@ -212,6 +210,27 @@ class App extends React.Component {
         this.setState({[event.target.name]: event.target.checked})
     };
 
+    handleIdeaSelectionChange = (event, idea) =>  {
+        event.preventDefault()
+        let oldSelected = this.state.selectedIdeas
+        if(!oldSelected.includes(idea.ideaid)) {
+            oldSelected.push(idea.ideaid)
+            this.setState({selectedIdeas: oldSelected})
+        } else {
+            this.setState({selectedIdeas: oldSelected.filter(selectedIdeaId => selectedIdeaId !== idea.ideaid)})
+        }
+    }
+    
+    handleIdeaRemoval = (event, ideaid) => {
+        event.preventDefault()
+        this.setState({selectedIdeas: this.state.selectedIdeas.filter(selectedIdeaId => selectedIdeaId !== ideaid)})
+    }
+    
+    handleEmptyCart = (event) => {
+        event.preventDefault()
+        this.setState({selectedIdeas: []})
+    }
+    
     renderDayPartCheckboxes() {
         return (
             <div className="dayPartCheckboxes">
@@ -254,7 +273,7 @@ class App extends React.Component {
                         return (
                             <div className="ideaCard" key={anIdea.ideaid}>
                                 <FormControlLabel className="favoriteCheckbox" control={<RedHeartCheckbox/>}
-                                                  checked={anIdea.selected} onChange={this.handleDayPartChange}/>
+                                                  checked={this.state.selectedIdeas.includes(anIdea.ideaid)} onClick={(event) => this.handleIdeaSelectionChange(event, anIdea)}/>
                                 <div className="ideaHeader">
                                     {anIdea.name}
                                 </div>
@@ -270,48 +289,33 @@ class App extends React.Component {
             </div>
         )
     }
+    
+    renderCart() {
+        const itemsInCart = this.state.ideas.filter((i) => this.state.selectedIdeas.includes(i.ideaid))
+        return (
+            <div className="cart rounded blackOutline component">
+                <h3>Your Cart</h3>
+                <ul>
+                    {itemsInCart.map((cartItem) => {
+                        return (
+                            <li key={cartItem.ideaid}>
+                                <div className="cartItem">
+                                    <span className="cartIdea">{cartItem.name}</span>
+                                    <button className="cartRemove" onClick={(event) => this.handleIdeaRemoval(event, cartItem.ideaid)}>remove</button>
+                                </div>
+                            </li>
+                        )
+                    }) }
+                </ul>
+                <div className="componentActionButtons">
+                    {!this.state.selectedIdeas.length ? null : <button onClick={(event) => this.handleEmptyCart(event)}><RemoveShoppingCartIcon/></button>}
+                    <button><EventIcon/></button>
+                    <button><MailIcon/></button>
+                </div>
+            </div>
+        )
+    }
 
-    // renderFAQs() {
-    //     return (
-    //         <div className="faqs rounded blackOutline component">
-    //             <h3>FAQs</h3>
-    //         </div>
-    //     )
-    // }
-    //
-    //
-    // renderCart() {
-    //     return (
-    //         <div className="cart rounded blackOutline component">
-    //             <h3>Your Cart</h3>
-    //             <ul>
-    //                 <li>
-    //                     <div className="cartItem">
-    //                         <span className="cartIdea">Scuba Dive.</span>
-    //                         <button className="cartRemove">remove</button>
-    //                     </div>
-    //                 </li>
-    //                 <li>
-    //                     <div>
-    //                         <span className="cartIdea">Build a sand fortress.</span>
-    //                         <button className="cartRemove">remove</button>
-    //                     </div>
-    //                 </li>
-    //                 <li>
-    //                     <div>
-    //                         <span className="cartIdea">Make pet rocks.</span>
-    //                         <button className="cartRemove">remove</button>
-    //                     </div>
-    //                 </li>
-    //             </ul>
-    //             <div className="componentActionButtons">
-    //                 <button><EventIcon/></button>
-    //                 <button><MailIcon/></button>
-    //             </div>
-    //         </div>
-    //     )
-    // }
-    //
     // renderEventCreator() {
     //     return (
     //         <div className="eventCreator rounded blackOutline component">
@@ -339,7 +343,7 @@ class App extends React.Component {
     //         </div>
     //     )
     // }
-
+    //
     // renderEmailCreator() {
     //     return (
     //         <div className="emailCreator rounded blackOutline component">
@@ -366,7 +370,15 @@ class App extends React.Component {
     //         </div>
     //     )
     // }
-
+    //
+    // renderFAQs() {
+    //     return (
+    //         <div className="faqs rounded blackOutline component">
+    //             <h3>FAQs</h3>
+    //         </div>
+    //     )
+    // }
+    
     render() {
         console.log("rendering")
         const {error, isLoaded} = this.state;
@@ -378,15 +390,16 @@ class App extends React.Component {
         } else {
             return (
                 <React.Fragment>
+                    {console.log(this.state)}
                     <div id="header">
                         <h1 id="headline">So It's A Date</h1>
                         <div id="headerTools">
                         </div>
                     </div>
                     <div id="main">
+                        {this.renderCart()}
                         {this.renderFilter()}
                         {this.renderIdeas()}
-                        {/*{this.renderCart()}*/}
                         {/*{this.renderEmailCreator()}*/}
                         {/*{this.renderEventCreator()}*/}
                         {/*{this.renderFAQs()}*/}
