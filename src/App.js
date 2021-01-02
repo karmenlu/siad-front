@@ -10,6 +10,7 @@ import FavoriteBorderIcon from '@material-ui/icons/FavoriteBorder';
 import HelpIcon from '@material-ui/icons/Help';
 import MailIcon from '@material-ui/icons/Mail';
 import EventIcon from '@material-ui/icons/Event';
+import RemoveShoppingCartIcon from '@material-ui/icons/RemoveShoppingCart';
 import FormGroup from '@material-ui/core/FormGroup';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Checkbox from '@material-ui/core/Checkbox';
@@ -225,6 +226,11 @@ class App extends React.Component {
         this.setState({selectedIdeas: this.state.selectedIdeas.filter(selectedIdeaId => selectedIdeaId !== ideaid)})
     }
     
+    handleEmptyCart = (event) => {
+        event.preventDefault()
+        this.setState({selectedIdeas: []})
+    }
+    
     renderDayPartCheckboxes() {
         return (
             <div className="dayPartCheckboxes">
@@ -302,6 +308,7 @@ class App extends React.Component {
                     }) }
                 </ul>
                 <div className="componentActionButtons">
+                    {!this.state.selectedIdeas.length ? null : <button onClick={(event) => this.handleEmptyCart(event)}><RemoveShoppingCartIcon/></button>}
                     <button><EventIcon/></button>
                     <button><MailIcon/></button>
                 </div>
